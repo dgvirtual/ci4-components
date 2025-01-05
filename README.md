@@ -50,7 +50,7 @@ and see if it renders as a button. If it does, then the component rendering is w
 Example components of all three types listed below are available in the `src/View/Components` folder of
 the project. They can be used immediately.
 
-### Self-Closing Tags
+### Self-Closing Tag Components
 
 At their most basic, components serve as dynamic templates that allow you to reduce the typing in your
 application. This can help boil longer, complex sections down to a single HTML tag. This is especially
@@ -92,7 +92,7 @@ in the following output:
 />
 ```
 
-### Custom Tags
+### Components With Opening and Closing Tags
 
 You can include the content within the opening and closing tags by inserting the reserved `$slot` variable:
 
@@ -114,8 +114,12 @@ as the component view and should have a name that is the PascalCase version of t
 added to the end of it.
 
 A `famous-quotes` component would have a view called `famous-quotes.php` and a controlling class called
-`FamousQuotesComponent.php`. The class must extend `App\Modules\Component\Libraries\Component`. The only
-requirement is that you implement a method called `render()`.
+`FamousQuotesComponent.php`. The class must extend `Dgvirtual\Component\Libraries\Component`. The only
+requirement is that you implement a method called `render()`. 
+
+You would call it in one of the ways previously described.
+
+See a usable basic example of `famous-quotes` component in the `src/Views/Components` folder.
 
 ## Credits
 
