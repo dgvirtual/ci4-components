@@ -1,0 +1,30 @@
+{
+  "name": "dgvirtual/ci4-components",
+  "description": "Codeigniter 4 Components library which allows creating custom HTML elements to use within view files",
+  "keywords": [
+    "CodeIgniter 4",
+    "Components",
+    "Bonfire",
+    "Decorator"
+  ],
+  "type": "library",
+  "homepage": "https://github.com/dgvirtual/ci4-components",
+  "require": {
+    "codeigniter4/framework": "^4.2"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^3.66"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Dgvirtual\\Components\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Donatas Glodenis",
+      "email": "dg@lapas.info"
+    }
+  ]
+}
