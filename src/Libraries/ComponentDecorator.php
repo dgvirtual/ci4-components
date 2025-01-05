@@ -1,12 +1,12 @@
 <?php
 
 /**
- * This file is adapted from Bonfire2 project, 
+ * This file is adapted from Bonfire2 project,
  * (c) Lonnie Ezell <lonnieje@gmail.com>
  *
- * Adapted as standalone module for CodeIgniter 4 by 
+ * Adapted as standalone module for CodeIgniter 4 by
  * Donatas Glodenis <dg@lapas.info>
- * 
+ *
  * For the full copyright and license information, please view
  * the LICENSE file that was distributed with this source code.
  */
