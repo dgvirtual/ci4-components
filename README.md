@@ -1,22 +1,22 @@
-# Components
+# Components for Codeigniter 4
 
-Codeigniter 4 library Components allows you to create custom HTML elements to use within your views. Components
+PHP library Components for Codeigniter 4 allows you to create custom HTML elements to use within your views. Components
 work much like the Blade Components, only without a custom templating language. To write them you could use
 regular PHP/CSS/HTML.
 
 ## Composer Installation
 
-To install in an **existing composer project**, run in command line:
+To install in an *existing composer project*, run in command line:
 
 ```bash
-    composer config minimum-stability dev
-    composer config repositories.ci4-components vcs git@github.com:dgvirtual/ci4-components.git
-    composer require dgvirtual/ci4-components:dev-develop
+composer config minimum-stability dev
+composer config repositories.ci4-components vcs git@github.com:dgvirtual/ci4-components.git
+composer require dgvirtual/ci4-components:dev-develop
 ```
 
 ## Manual installation
 
-Lets say you want to put the library into the `app/ThirdParty` directory.
+Let's say you want to put the library into the `app/ThirdParty` directory.
 
 1. Download and unzip the code, copy the `ci4-components` folder to
    the `app/ThirdParty` directory.
@@ -25,10 +25,10 @@ Lets say you want to put the library into the `app/ThirdParty` directory.
    to the `$psr4` property:
 
 ```php
-    public $psr4 = [
-        APP_NAMESPACE => APPPATH,
-        'dgvirtual\Components' => APPPATH . 'ThirdParty\ci4-components\src', // this line
-    ];
+public $psr4 = [
+    APP_NAMESPACE => APPPATH,
+    'dgvirtual\Components' => APPPATH . 'ThirdParty\ci4-components\src', // this line
+];
 ```
 
 ## Configuration
@@ -36,9 +36,9 @@ Lets say you want to put the library into the `app/ThirdParty` directory.
 1. Edit the `app/Config/View.php` file. Add the following array element to the `$decorators` property:
 
 ```php
-    public array $decorators = [
-        'dgvirtual\Components\Libraries\ComponentDecorator', // this line
-    ];
+public array $decorators = [
+    'dgvirtual\Components\Libraries\ComponentDecorator', // this line
+];
 ```
 
 ## Try If It Works
@@ -68,18 +68,18 @@ accessible as described in the installation step 4 above.
 A simple avatar image component `avatar.php` might look something like this:
 
 ```php
-    <img
-        src="<?= $src ?? '' ?>"
-        class="rounded-circle shadow-4"
-        style="width: <?= $width ?? '150px' ?>;"
-        alt="<?= $alt ?? '' ?>"
-    />
+<img
+    src="<?= $src ?? '' ?>"
+    class="rounded-circle shadow-4"
+    style="width: <?= $width ?? '150px' ?>;"
+    alt="<?= $alt ?? '' ?>"
+/>
 ```
 
 When using the component within a view, you would insert a tag with `x-` prepended to the filename:
 
 ```php
-    <x-avatar src="<?= $userAvatarURL ?>" alt="<?= $userName ?>" />
+<x-avatar src="<?= $userAvatarURL ?>" alt="<?= $userName ?>" />
 ```
 
 Any attributes provided when you insert the component like this are made available as variables within
@@ -87,12 +87,12 @@ the component view. In this case, the `$src` and `$alt` attributes are passed to
 in the following output:
 
 ```html
-    <img
-        src="http://example.com/avatars/foo.jpg"
-        class="rounded-circle shadow-4"
-        style="width: 150px"
-        alt="John Smith"
-    />
+<img
+    src="http://example.com/avatars/foo.jpg"
+    class="rounded-circle shadow-4"
+    style="width: 150px"
+    alt="John Smith"
+/>
 ```
 
 ### Components With Opening and Closing Tags
@@ -100,31 +100,31 @@ in the following output:
 You can include the content within the opening and closing tags by inserting the reserved `$slot` variable:
 
 ```php
-    <x-green-button onclick="alert('I was clicked!')">Click Me!</x-green-button>
+<x-green-button onclick="alert('I was clicked!')">Click Me!</x-green-button>
 ```
 
 The component `green-button.php` would look like this:
 
 ```php
-    <button
-        style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
-        <?= isset($onclick) ? 'onclick="' . $onclick . '"' : '' ?>
-        type="<?= $type ?? 'submit' ?>"
-    >
-        <?= $slot ?>
-    </button>
+<button
+    style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
+    <?= isset($onclick) ? 'onclick="' . $onclick . '"' : '' ?>
+    type="<?= $type ?? 'submit' ?>"
+>
+    <?= $slot ?>
+</button>
 ```
 
 The rendered html would look like this: 
 
 ```html
-    <button
-        style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
-        onclick="alert('I was clicked!')"
-        type="submit"
-    >
-        Click Me!
-    </button>
+<button
+    style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
+    onclick="alert('I was clicked!')"
+    type="submit"
+>
+    Click Me!
+</button>
 ```
 
 ### Controlled Components
@@ -144,7 +144,7 @@ See a usable basic example of `famous-quotes` component in the `src/Views/Compon
 It can be inserted into your project like this:
 
 ```php
-    <x-famous-quotes />
+<x-famous-quotes />
 ```
 
 Controlled components can also include both the content via `$slot` and html attributes.
@@ -155,19 +155,19 @@ Review the `src/Config/Components.php` file. The default configuration specifies
    will search for component files in two locations:
 
 ```php
-    public $componentsLookupPaths = [
-        // your local components
-        APPPATH . 'Views/Components/',
-        // example components
-        __DIR__ . '/../Views/Components/',
-    ];
+public $componentsLookupPaths = [
+    // your local components
+    APPPATH . 'Views/Components/',
+    // example components
+    __DIR__ . '/../Views/Components/',
+];
 ```
 
 If you want the app to find components located elsewhere, copy this file to your `app/Config` directory, change
 the namespace of the copy to `namespace Config;`, and edit the `$componentsLookupPaths` to list all the locations where
 you want the app to look for components. The project will then use this config instead of the library's own.
 
-_Note:_ The first component found in the lookup paths will be used. Therefore, if you have custom components, list their paths
+_Note:_ The *first component found* in the lookup paths will be used. Therefore, if you have custom components, list their paths
 first, and the default ones last.
 
 ## Credits
