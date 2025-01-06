@@ -1,20 +1,44 @@
 # Components for Codeigniter 4
 
-PHP library Components for Codeigniter 4 allows you to create custom HTML elements to use within your views. Components
-work much like the Blade Components, only without a custom templating language. To write them you could use
-regular PHP/CSS/HTML.
+PHP library *Components for Codeigniter 4* allows you to create custom HTML elements to use within your views. They allow to 
+encapsulate html and css classes/styles into reusable website building blocks with the content and attributes of your choosing. 
+They are written in regular PHP/CSS/HTML. Such custom HTML elements can include other HTML elements (custom or default).
+
+To illustrate, with Components you write this in your view: 
+
+```php
+<x-green-button onclick="alert('I was clicked!')">
+   <?= $clickMeLabel ?>
+</x-green-button>
+```
+Which, is merged with the Component definition: 
+```php
+<button
+    style="color: white; background-color: green;"
+    <?= isset($onclick) ? 'onclick="' . $onclick . '"' : '' ?>
+>
+    <?= $slot ?>
+</button>
+```
+And results in this in the browser: 
+```html
+<button
+    style="color: white; background-color: green;"
+    onclick="alert('I was clicked!')"
+>
+    Click Me!
+</button>
+```
 
 ## Composer Installation
 
 To install in an *existing composer project*, run in command line:
 
 ```bash
-composer config minimum-stability dev
-composer config repositories.ci4-components vcs git@github.com:dgvirtual/ci4-components.git
-composer require dgvirtual/ci4-components:dev-develop
+composer require dgvirtual/codeigniter4-components:dev-develop
 ```
 
-## Manual installation
+## Manual Installation
 
 Let's say you want to put the library into the `app/ThirdParty` directory.
 
@@ -44,10 +68,10 @@ public array $decorators = [
 ## Try If It Works
 
 **To check if it works with the example components**, put the string `<x-green-button>This should look like a button</x-green-button>`
-in any of your views and see if it renders as a button. If it does, then the component rendering is working correctly.
+in any of your views and see if it renders as a button (if not, all you will see will be simple text). 
 
-Now you can make some components of your own (read below how) and put them in `app/Views/Components` folder
-to make them accessible to the library.
+Now you can make some components of your own and put them in `app/Views/Components` folder
+to make them usable in your app views.
 
 ## How To Write and Use Components
 
@@ -100,14 +124,16 @@ in the following output:
 You can include the content within the opening and closing tags by inserting the reserved `$slot` variable:
 
 ```php
-<x-green-button onclick="alert('I was clicked!')">Click Me!</x-green-button>
+<x-green-button onclick="alert('I was clicked!')">
+   Click Me!
+</x-green-button>
 ```
 
 The component `green-button.php` would look like this:
 
 ```php
 <button
-    style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
+    style="color: white; background-color: green;"
     <?= isset($onclick) ? 'onclick="' . $onclick . '"' : '' ?>
     type="<?= $type ?? 'submit' ?>"
 >
@@ -119,7 +145,7 @@ The rendered html would look like this:
 
 ```html
 <button
-    style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
+    style="color: white; background-color: green;"
     onclick="alert('I was clicked!')"
     type="submit"
 >
