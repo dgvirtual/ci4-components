@@ -44,7 +44,7 @@ composer require dgvirtual/codeigniter4-components:dev-develop
 
 Let's say you want to put the library into the `app/ThirdParty` directory.
 
-1. Download and unzip the code, copy the `ci4-components` folder to
+1. Download and unzip the code, copy the `codeigniter4-components` folder to
    the `app/ThirdParty` directory.
 
 2. To enable Codeigniter to find the library, edit the `app/Config/Autoload.php` file, add the Components library 
@@ -53,7 +53,7 @@ Let's say you want to put the library into the `app/ThirdParty` directory.
 ```php
 public $psr4 = [
     APP_NAMESPACE => APPPATH,
-    'dgvirtual\Components' => APPPATH . 'ThirdParty\ci4-components\src', // this line
+    'dgvirtual\Components' => APPPATH . 'ThirdParty\codeigniter4-components\src', // this line
 ];
 ```
 
