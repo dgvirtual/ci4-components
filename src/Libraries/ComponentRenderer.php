@@ -218,23 +218,25 @@ class ComponentRenderer
     private function factory(string $name, string $view): ?Component
     {
         // Locate the class in the same folder as the view
-        $class    = pascalize($name) . 'Component.php';
-        $filePath = str_replace($name . '.php', $class, $view);
+        $class    = pascalize(str_replace('-', '_', $name)) . 'Component';
+        $filePath = str_replace($name . '.php', $class . '.php', $view);
 
-        if (empty($filePath)) {
+        if (empty($filePath) || ! file_exists($filePath)) {
             return null;
         }
 
-        if (! file_exists($filePath)) {
-            return null;
-        }
+        // Use the locator service to get the fully qualified class name
         $className = service('locator')->getClassname($filePath);
 
         if (! class_exists($className)) {
             include_once $filePath;
         }
 
-        return (new $className())->withView($view);
+        if (class_exists($className)) {
+            return (new $className())->withView($view);
+        }
+
+        return null;
     }
 
     /**
