@@ -173,7 +173,8 @@ first, and the default ones last.
 ## Credits
 
 This project is an adaptation of Bonfire2 Component rendering functionality for general CodeIgniter 4 use.
-For more information, visit the [Bonfire2 project](https://github.com/lonnieezell/Bonfire2).
+Bonfire2 was created by Lonnie Ezell <lonnieje@gmail.com> and contributors. For more information, visit 
+the [Bonfire2 project](https://github.com/lonnieezell/Bonfire2).
 
 The adaptation and package was created by Donatas Glodenis. You can reach out to me at [dg@lapas.info] for any questions or feedback.
 
