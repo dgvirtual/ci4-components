@@ -1,5 +1,5 @@
 {
-  "name": "dgvirtual/ci4-components",
+  "name": "dgvirtual/codeigniter4-components",
   "description": "Codeigniter 4 Components library which allows creating custom HTML elements to use within view files",
   "keywords": [
     "CodeIgniter",
