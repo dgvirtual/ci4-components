@@ -65,15 +65,14 @@ one file changes every instance of the view throughout the application.
 To create a component, simply create a new view file within the `app\Views\Components` directory or another place made
 accessible as described in the installation step 4 above.
 
-A simple avatar image might look something like this:
+A simple avatar image component `avatar.php` might look something like this:
 
 ```php
-    // app/Views/Components/avatar.php
     <img
-    src="<?= $src ?? '' ?>"
-    class="rounded-circle shadow-4"
-    style="width: <?= $width ?? '150px' ?>;"
-    alt="<?= $alt ?? '' ?>"
+        src="<?= $src ?? '' ?>"
+        class="rounded-circle shadow-4"
+        style="width: <?= $width ?? '150px' ?>;"
+        alt="<?= $alt ?? '' ?>"
     />
 ```
 
@@ -104,16 +103,27 @@ You can include the content within the opening and closing tags by inserting the
     <x-green-button onclick="alert('I was clicked!')">Click Me!</x-green-button>
 ```
 
-The result would be:
+The component `green-button.php` would look like this:
 
 ```php
-    // app/Views/Components/avatar.php
     <button
         style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
         <?= isset($onclick) ? 'onclick="' . $onclick . '"' : '' ?>
         type="<?= $type ?? 'submit' ?>"
     >
         <?= $slot ?>
+    </button>
+```
+
+The rendered html would look like this: 
+
+```html
+    <button
+        style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
+        onclick="alert('I was clicked!')"
+        type="submit"
+    >
+        Click Me!
     </button>
 ```
 
