@@ -19,7 +19,9 @@ class Components extends BaseConfig
      * @var array $componentsLookupPaths Paths to look for component views.
      */
     public $componentsLookupPaths = [
+        // your local components
         APPPATH . 'Views/Components/',
-        APPPATH . 'ThirdParty/Components/src/Views/Components/',
+        // example components
+        __DIR__ . '/../Views/Components/',
     ];
 }

@@ -1,23 +1,39 @@
 # Components
 
 Codeigniter 4 library Components allows you to create custom HTML elements to use within your views. Components
-work much like the Blade Components, only without a custom templating language. To write them you should use
+work much like the Blade Components, only without a custom templating language. To write them you could use
 regular PHP/CSS/HTML.
 
-## Installation (thus far only manual)
+## Composer Installation
 
-1. Copy the `Components` folder to the `app/ThirdParty` directory.
+To install in an **existing composer project**, run in command line:
 
-2. Edit the `app/Config/Autoload.php` file, add the Components library to the `$psr4` property:
+```bash
+    composer config minimum-stability dev
+    composer config repositories.ci4-components vcs git@github.com:dgvirtual/ci4-components.git
+    composer require dgvirtual/ci4-components:dev-develop
+```
+
+## Manual installation
+
+Lets say you want to put the library into the `app/ThirdParty` directory.
+
+1. Download and unzip the code, copy the `ci4-components` folder to
+   the `app/ThirdParty` directory.
+
+2. To enable Codeigniter to find the library, edit the `app/Config/Autoload.php` file, add the Components library 
+   to the `$psr4` property:
 
 ```php
     public $psr4 = [
         APP_NAMESPACE => APPPATH,
-        'dgvirtual\Components' => APPPATH . 'ThirdParty\Components\src', // this line
+        'dgvirtual\Components' => APPPATH . 'ThirdParty\ci4-components\src', // this line
     ];
 ```
 
-3. Edit the `app/Config/View.php` file. Add the following array element to the `$decorators` property:
+## Configuration
+
+1. Edit the `app/Config/View.php` file. Add the following array element to the `$decorators` property:
 
 ```php
     public array $decorators = [
@@ -25,25 +41,13 @@ regular PHP/CSS/HTML.
     ];
 ```
 
-4. Review the `app/ThirdParty/Components/src/Config/Components.php` file. The default configuration specifies that the app
-   will search for component files in two locations:
+## Try If It Works
 
-```php
-    public $componentsLookupPaths = [
-        APPPATH . 'Views/Components/',
-        APPPATH . 'ThirdParty/Components/src/Views/Components/',
-    ];
-```
+**To check if it works with the example components**, put the string `<x-button>This should look like a button</x-button>`
+in any of your views and see if it renders as a button. If it does, then the component rendering is working correctly.
 
-If you want the app to find components located elsewhere, copy this file to your `app/Config` directory, change
-the namespace of the copy to `namespace Config;`, and edit the `$componentsLookupPaths` to list all the locations where
-you want the app to look for components. The project will then use this config instead of the library's own.
-
-_Note:_ The first component found in the lookup paths will be used. Therefore, if you have custom components, list their paths
-first, and the default ones last.
-
-**To check if it works**, put the string `<x-button>This should look like a button</x-button>` in any of your views
-and see if it renders as a button. If it does, then the component rendering is working correctly.
+Now you can make some components of your own (read below how) and put them in `app/Views/Components` folder
+to make them accessible to the library.
 
 ## How To Write and Use Components
 
@@ -64,19 +68,19 @@ accessible as described in the installation step 4 above.
 A simple avatar image might look something like this:
 
 ```php
-// app/Views/Components/avatar.php
-<img
-  src="<?= $src ?? '' ?>"
-  class="rounded-circle shadow-4"
-  style="width: <?= $width ?? '150px' ?>;"
-  alt="<?= $alt ?? '' ?>"
-/>
+    // app/Views/Components/avatar.php
+    <img
+    src="<?= $src ?? '' ?>"
+    class="rounded-circle shadow-4"
+    style="width: <?= $width ?? '150px' ?>;"
+    alt="<?= $alt ?? '' ?>"
+    />
 ```
 
 When using the component within a view, you would insert a tag with `x-` prepended to the filename:
 
 ```php
-<x-avatar src="<?= $user->avatarUrl() ?>" alt="<?= $user->name ?>" />
+    <x-avatar src="<?= $userAvatarURL ?>" alt="<?= $userName ?>" />
 ```
 
 Any attributes provided when you insert the component like this are made available as variables within
@@ -84,12 +88,12 @@ the component view. In this case, the `$src` and `$alt` attributes are passed to
 in the following output:
 
 ```html
-<img
-  src="http://example.com/avatars/foo.jpg"
-  class="rounded-circle shadow-4"
-  style="width: 150px"
-  alt="John Smith"
-/>
+    <img
+        src="http://example.com/avatars/foo.jpg"
+        class="rounded-circle shadow-4"
+        style="width: 150px"
+        alt="John Smith"
+    />
 ```
 
 ### Components With Opening and Closing Tags
@@ -97,14 +101,20 @@ in the following output:
 You can include the content within the opening and closing tags by inserting the reserved `$slot` variable:
 
 ```php
-<x-green-button>Click Me!</x-green-button>
+    <x-green-button onclick="alert('I was clicked!')">Click Me!</x-green-button>
 ```
 
+The result would be:
+
 ```php
-// app/Views/Components/green-button.php
-<button class="btn btn-success">
-    <?= $slot ?>
-</button>
+    // app/Views/Components/avatar.php
+    <button
+        style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
+        <?= isset($onclick) ? 'onclick="' . $onclick . '"' : '' ?>
+        type="<?= $type ?? 'submit' ?>"
+    >
+        <?= $slot ?>
+    </button>
 ```
 
 ### Controlled Components
@@ -119,7 +129,36 @@ requirement is that you implement a method called `render()`.
 
 You would call it in one of the ways previously described.
 
-See a usable basic example of `famous-quotes` component in the `src/Views/Components` folder.
+See a usable basic example of `famous-quotes` component in the `src/Views/Components` folder. 
+
+It can be inserted into your project like this:
+
+```php
+    <x-famous-quotes />
+```
+
+Controlled components can also include both the content via `$slot` and html attributes.
+
+## Advanced Configuration
+
+Review the `src/Config/Components.php` file. The default configuration specifies that the app
+   will search for component files in two locations:
+
+```php
+    public $componentsLookupPaths = [
+        // your local components
+        APPPATH . 'Views/Components/',
+        // example components
+        __DIR__ . '/../Views/Components/',
+    ];
+```
+
+If you want the app to find components located elsewhere, copy this file to your `app/Config` directory, change
+the namespace of the copy to `namespace Config;`, and edit the `$componentsLookupPaths` to list all the locations where
+you want the app to look for components. The project will then use this config instead of the library's own.
+
+_Note:_ The first component found in the lookup paths will be used. Therefore, if you have custom components, list their paths
+first, and the default ones last.
 
 ## Credits
 
