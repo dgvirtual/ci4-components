@@ -3,7 +3,7 @@
   "description": "Codeigniter 4 Components library which allows creating custom HTML elements to use within view files",
   "keywords": [
     "CodeIgniter",
-    "CodeIgniter 4",
+    "CodeIgniter4",
     "Components",
     "Bonfire",
     "Decorator"
