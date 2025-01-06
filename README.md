@@ -43,7 +43,7 @@ Lets say you want to put the library into the `app/ThirdParty` directory.
 
 ## Try If It Works
 
-**To check if it works with the example components**, put the string `<x-button>This should look like a button</x-button>`
+**To check if it works with the example components**, put the string `<x-green-button>This should look like a button</x-green-button>`
 in any of your views and see if it renders as a button. If it does, then the component rendering is working correctly.
 
 Now you can make some components of your own (read below how) and put them in `app/Views/Components` folder
