@@ -4,6 +4,8 @@ PHP library *Components for Codeigniter 4* allows you to create custom HTML elem
 encapsulate html and css classes/styles into reusable website building blocks with the content and attributes of your choosing. 
 They are written in regular PHP/CSS/HTML. Such custom HTML elements can include other HTML elements (custom or default).
 
+Custom component tag always starts with `x-` (like ```<x-green-button>Click Me!</x-green-button>```).
+
 To illustrate, with Components you write this in your view: 
 
 ```php
