@@ -44,7 +44,7 @@ And results in this in the browser:
 To install in an _existing composer project_, run in command line:
 
 ```bash
-composer require dgvirtual/codeigniter4-components
+composer require dgvirtual/codeigniter4-components:dev-develop
 ```
 
 ## Manual Installation
@@ -60,7 +60,7 @@ Let's say you want to put the library into the `app/ThirdParty` directory.
 ```php
 public $psr4 = [
   APP_NAMESPACE => APPPATH,
-  'Dgvirtual\Components' => APPPATH . 'ThirdParty\codeigniter4-components\src', // this line
+  'Dgvirtual\Components' => APPPATH . 'ThirdParty/codeigniter4-components/src', // this line
 ];
 ```
 
@@ -188,14 +188,26 @@ You would call it in one of the ways previously described.
 See a usable basic example of `famous-quotes` component in the
 `src/Views/Components` folder.
 
-It can be inserted into your project like this:
+It can be inserted into your project like this (self closing, no atributes):
 
-```php
-<x-famous-quotes />
+```html
+  <x-famous-quotes />
 ```
 
-Controlled components can also include both the content via `$slot` and html
-attributes.
+or self-closing tag with attributes:
+
+```html
+  <x-famous-quotes seconds="30" />
+```
+
+or a component with opening and closing tags:
+
+```html
+  <x-famous-quotes seconds="30">Famous Quotes</x-famous-quotes>
+```
+
+As you see, controlled components can  include both the content via `$slot` and 
+html attributes.
 
 ## Advanced Configuration
 

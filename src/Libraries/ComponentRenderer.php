@@ -114,7 +114,9 @@ class ComponentRenderer
             $component  = $this->factory($match['name'], $view);
 
             return $component instanceof Component
-                ? $component->withView($view)->render()
+                // case of controlled component
+                ? $component->withView($view)->withData($attributes)->render()
+                // case of simple component
                 : $this->renderView($view, $attributes);
         }, $output);
     }
@@ -142,7 +144,9 @@ class ComponentRenderer
             $component          = $this->factory($match['name'], $view);
 
             return $component instanceof Component
+                // case of controlled component
                 ? $component->withView($view)->withData($attributes)->render()
+                // case of simple component
                 : $this->renderView($view, $attributes);
         }, $output) ?? preg_last_error();
     }
