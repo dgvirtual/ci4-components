@@ -66,8 +66,8 @@ public $psr4 = [
 
 ## Configuration
 
-1. Edit the `app/Config/View.php` file. Add the following array element to the
-   `$decorators` property:
+Edit the `app/Config/View.php` file. Add the following array element to the
+`$decorators` property:
 
 ```php
 public array $decorators = [
