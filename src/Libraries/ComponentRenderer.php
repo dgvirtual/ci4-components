@@ -11,10 +11,10 @@
  * the LICENSE file that was distributed with this source code.
  */
 
-namespace dgvirtual\Components\Libraries;
+namespace Dgvirtual\Components\Libraries;
 
 use RuntimeException;
-use dgvirtual\Components\Config\Components;
+use Dgvirtual\Components\Config\Components;
 
 /**
  * Class ComponentRenderer

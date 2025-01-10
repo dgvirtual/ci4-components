@@ -9,7 +9,7 @@
  * and used instead of this file.
  */
 
-namespace dgvirtual\Components\Config;
+namespace Dgvirtual\Components\Config;
 
 use CodeIgniter\Config\BaseConfig;
 
