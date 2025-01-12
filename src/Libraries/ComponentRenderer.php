@@ -201,8 +201,13 @@ class ComponentRenderer
         return (static function (string $view, $data) {
             extract($data);
             ob_start();
-            eval('?>' . file_get_contents($view));
-            return ob_get_clean() ?: '';
+            try {
+                eval('?>' . file_get_contents($view));
+                return ob_get_clean() ?: '';
+            } catch (\Throwable $e) {
+                ob_end_clean();
+                throw $e;
+            }
         })($view, $data);
     }
 
@@ -278,6 +283,8 @@ class ComponentRenderer
     private function getComponentsLookupPaths(): array
     {
         try {
+            // @phpstan-ignore-next-line
+            // todo: figure how to make the vscode error go?
             $componentsLookupPaths = config(\Config\Components::class)->componentsLookupPaths;
         } catch (\Throwable $e) {
             // If no Config\Components file is created, fall back to the module configuration

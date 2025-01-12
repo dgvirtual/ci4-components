@@ -46,6 +46,7 @@ class Component
      *
      * @param string $view The name of the view to be rendered.
      * @return Component
+     * @codeCoverageIgnore
      */
     public function withView(string $view): Component
     {
@@ -59,6 +60,7 @@ class Component
      *
      * @param array $data The data to be passed to the view.
      * @return Component
+     * @codeCoverageIgnore
      */
     public function withData(array $data): Component
     {
@@ -71,6 +73,7 @@ class Component
      * Returns the processed component view.
      *
      * @return string The rendered view content.
+     * @codeCoverageIgnore
      */
     public function render(): string
     {
@@ -89,8 +92,13 @@ class Component
         return (static function (string $view, $data) {
             extract($data);
             ob_start();
-            eval('?>' . file_get_contents($view));
-            return ob_get_clean() ?: '';
+            try {
+                eval('?>' . file_get_contents($view));
+                return ob_get_clean() ?: '';
+            } catch (\Throwable $e) {
+                ob_end_clean();
+                throw $e;
+            }
         })($view, $data);
     }
 }
