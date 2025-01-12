@@ -38,10 +38,9 @@
     }
   ],
   "scripts": {
-    "analyze": [
-      "phpstan analyze",
-      "rector process --dry-run"
-    ],
+    "analyze": "vendor/bin/phpstan analyze",
+    "rector": "vendor/bin/rector process --dry-run",
+    "rector-fix": "vendor/bin/rector process",
     "style": "vendor/bin/php-cs-fixer fix --ansi --verbose --dry-run --diff",
     "style-fix": "vendor/bin/php-cs-fixer fix --ansi --verbose --diff",
     "cs": "@style-fix",
