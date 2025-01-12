@@ -1,5 +1,8 @@
 # Components for Codeigniter 4
 
+![Build Status](https://github.com/dgvirtual/codeigniter4-components/actions/workflows/phpunit.yml/badge.svg)
+![Coverage](https://codecov.io/gh/dgvirtual/codeigniter4-components/branch/develop/graph/badge.svg)
+
 PHP library _Components for Codeigniter 4_ allows you to create custom HTML
 elements to use within your views. They allow to encapsulate html and css
 classes/styles into reusable website building blocks with the content and
