@@ -3,14 +3,17 @@ name: PHPUnit Tests
 on:
   push:
     branches:
-      - main
+      - develop
   pull_request:
     branches:
-      - main
+      - develop
 
 jobs:
   phpunit:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ["8.1", "8.3"]
 
     steps:
       - name: Checkout code
@@ -19,19 +22,49 @@ jobs:
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: ${{ matrix.php-version }}
           extensions: mbstring, intl, dom, xml, json
           coverage: xdebug
+
+      - name: Get composer cache directory
+        run:
+          echo "COMPOSER_CACHE_FILES_DIR=$(composer config cache-files-dir)" >>
+          $GITHUB_ENV
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.COMPOSER_CACHE_FILES_DIR }}
+          key:
+            ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}-${{
+            hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
         run:
           composer install --prefer-dist --no-progress --no-suggest
           --no-interaction
 
+      - name: Create test results directory
+        run: mkdir -p test-results
+
       - name: Run tests and collect coverage
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml .
+        run:
+          vendor/bin/phpunit --coverage-clover=coverage.xml --log-junit
+          test-results/junit.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results/
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
