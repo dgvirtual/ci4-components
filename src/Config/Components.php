@@ -16,7 +16,7 @@ use CodeIgniter\Config\BaseConfig;
 class Components extends BaseConfig
 {
     /**
-     * @var array $componentsLookupPaths Paths to look for component views.
+     * @var array Paths to look for component views.
      */
     public $componentsLookupPaths = [
         // your local components

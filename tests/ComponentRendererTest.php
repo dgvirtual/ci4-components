@@ -2,11 +2,17 @@
 
 namespace Tests;
 
-use PHPUnit\Framework\TestCase;
 use Dgvirtual\Components\Libraries\Component;
 use Dgvirtual\Components\Libraries\ComponentRenderer;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use RuntimeException;
+use Throwable;
 
-class ComponentRendererTest extends TestCase
+/**
+ * @internal
+ */
+final class ComponentRendererTest extends TestCase
 {
     private $renderer;
 
@@ -22,8 +28,8 @@ class ComponentRendererTest extends TestCase
         // Set the cache with key 'famous_quote'
         $quoteData = [
             'quote' => [
-                'text' => 'The only way to do great work is to love what you do',
-                'author' => 'Steve Jobs'
+                'text'   => 'The only way to do great work is to love what you do',
+                'author' => 'Steve Jobs',
             ],
             'seconds' => 60,
         ];
@@ -51,7 +57,7 @@ class ComponentRendererTest extends TestCase
     {
         $output = '';
         $result = $this->renderer->render($output);
-        $this->assertEquals($result, '');
+        $this->assertSame($result, '');
     }
 
     public function testRenderSelfClosingTags()
@@ -94,7 +100,7 @@ class ComponentRendererTest extends TestCase
     public function testParseAttributes()
     {
         $attributes = 'class="btn" type="button"';
-        $result = $this->invokeMethod($this->renderer, 'parseAttributes', [$attributes]);
+        $result     = $this->invokeMethod($this->renderer, 'parseAttributes', [$attributes]);
         $this->assertIsArray($result);
         $this->assertContains('button', $result);
     }
@@ -105,8 +111,8 @@ class ComponentRendererTest extends TestCase
         $data = ['buttonText' => 'Click me!'];
 
         // Create a temporary view file
-        $phpCode = <<<PHP
-            <button><?php echo \$buttonText; ?></button>
+        $phpCode = <<<'PHP'
+            <button><?php echo $buttonText; ?></button>
             PHP;
         file_put_contents($view, $phpCode);
 
@@ -124,12 +130,12 @@ class ComponentRendererTest extends TestCase
         $data = ['cardTextMisnamed' => 'What a nice card!'];
 
         // Create a temporary view file with a missing variable
-        $phpCode = <<<PHP
-            <div class="card"><?php echo \$cardText; ?></div>
+        $phpCode = <<<'PHP'
+            <div class="card"><?php echo $cardText; ?></div>
             PHP;
         file_put_contents($view, $phpCode);
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
 
         try {
             $this->invokeMethod($this->renderer, 'renderView', [$view, $data]);
@@ -141,16 +147,16 @@ class ComponentRendererTest extends TestCase
 
     public function testFactoryIsNotInstance()
     {
-        $name = 'green-button';
-        $view = __DIR__ . '/../src/Components/green-button.php';
+        $name   = 'green-button';
+        $view   = __DIR__ . '/../src/Components/green-button.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertNull($result);
     }
 
     public function testFactoryIsInstance()
     {
-        $name = 'famous-quotes';
-        $view = __DIR__ . '/../src/Components/famous-quotes.php';
+        $name   = 'famous-quotes';
+        $view   = __DIR__ . '/../src/Components/famous-quotes.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertInstanceOf(Component::class, $result);
     }
@@ -159,15 +165,15 @@ class ComponentRendererTest extends TestCase
     {
         // do mismatch: component class is valid, view file exists, but
         // does not have a corresponding class
-        $name = 'green-button';
-        $view = __DIR__ . '/../src/Components/famous-quotes.php';
+        $name   = 'green-button';
+        $view   = __DIR__ . '/../src/Components/famous-quotes.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertNull($result);
     }
 
     public function testLocateView()
     {
-        $name = 'green-button';
+        $name   = 'green-button';
         $result = $this->invokeMethod($this->renderer, 'locateView', [$name]);
         $this->assertIsString($result);
         $this->assertFileExists($result);
@@ -177,7 +183,7 @@ class ComponentRendererTest extends TestCase
     {
         $name = 'yellow-button';
         // Set the expectation for the exception BEFORE invoking the method
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('View not found for component: yellow-button');
         $this->invokeMethod($this->renderer, 'locateView', [$name]);
     }
@@ -197,13 +203,13 @@ class ComponentRendererTest extends TestCase
     {
         $string = '"quoted string"';
         $result = $this->invokeMethod($this->renderer, 'stripQuotes', [$string]);
-        $this->assertEquals($result, 'quoted string');
+        $this->assertSame($result, 'quoted string');
     }
 
     protected function invokeMethod(&$object, $methodName, array $parameters = [])
     {
-        $reflection = new \ReflectionClass(get_class($object));
-        $method = $reflection->getMethod($methodName);
+        $reflection = new ReflectionClass(get_class($object));
+        $method     = $reflection->getMethod($methodName);
         $method->setAccessible(true);
 
         return $method->invokeArgs($object, $parameters);

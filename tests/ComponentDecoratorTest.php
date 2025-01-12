@@ -2,15 +2,19 @@
 
 namespace Tests;
 
-use PHPUnit\Framework\TestCase;
 use Dgvirtual\Components\Libraries\ComponentDecorator;
 use Dgvirtual\Components\Libraries\ComponentRenderer;
+use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
-class ComponentDecoratorTest extends TestCase
+/**
+ * @internal
+ */
+final class ComponentDecoratorTest extends TestCase
 {
     public function testDecorate()
     {
-        $html = '<div><x-green-button>Click me!</x-green-button></div>';
+        $html   = '<div><x-green-button>Click me!</x-green-button></div>';
         $result = ComponentDecorator::decorate($html);
         $this->assertIsString($result);
         $this->assertStringContainsString('<button', $result);
@@ -19,8 +23,8 @@ class ComponentDecoratorTest extends TestCase
 
     public function testFactory()
     {
-        $reflection = new \ReflectionClass(ComponentDecorator::class);
-        $method = $reflection->getMethod('factory');
+        $reflection = new ReflectionClass(ComponentDecorator::class);
+        $method     = $reflection->getMethod('factory');
         $method->setAccessible(true);
         $result = $method->invoke(null);
         $this->assertInstanceOf(ComponentRenderer::class, $result);
@@ -28,10 +32,10 @@ class ComponentDecoratorTest extends TestCase
 
     public function testFactorySingleton()
     {
-        $reflection = new \ReflectionClass(ComponentDecorator::class);
-        $method = $reflection->getMethod('factory');
+        $reflection = new ReflectionClass(ComponentDecorator::class);
+        $method     = $reflection->getMethod('factory');
         $method->setAccessible(true);
-        $firstInstance = $method->invoke(null);
+        $firstInstance  = $method->invoke(null);
         $secondInstance = $method->invoke(null);
         $this->assertSame($firstInstance, $secondInstance);
     }

@@ -1,10 +1,14 @@
 <?php
+
 use PHPUnit\Framework\TestCase;
 
-class HelloWorldTest extends TestCase
+/**
+ * @internal
+ */
+final class HelloWorldTest extends TestCase
 {
     public function testHelloWorld()
     {
-        $this->assertEquals('Hello, World!', 'Hello, World!');
+        $this->assertSame('Hello, World!', 'Hello, World!');
     }
 }

@@ -14,8 +14,7 @@ use Dgvirtual\Components\Libraries\Component;
 
 class FamousQuotesComponent extends Component
 {
-    protected $defaultNoOfSeconds = 5;
-
+    protected $defaultNoOfSeconds         = 5;
     protected string $famousQuotesAPINode = 'https://zenquotes.io/api/random';
 
     public function render(): string
@@ -42,13 +41,13 @@ class FamousQuotesComponent extends Component
         }
 
         // If not cached, fetch from the API
-        $response = file_get_contents($this->famousQuotesAPINode);
+        $response  = file_get_contents($this->famousQuotesAPINode);
         $quoteData = json_decode($response, true);
 
         if (isset($quoteData[0])) {
             $this->data['quote'] = [
-                'text'    => $quoteData[0]['q'],
-                'author'  => $quoteData[0]['a']
+                'text'   => $quoteData[0]['q'],
+                'author' => $quoteData[0]['a'],
             ];
 
             // Cache the quote for 60 seconds
@@ -56,8 +55,8 @@ class FamousQuotesComponent extends Component
         } else {
             // Default quote if API fails
             $this->data['quote'] = [
-                'text' => 'The only way to do great work is to love what you do',
-                'author' => 'Steve Jobs'
+                'text'   => 'The only way to do great work is to love what you do',
+                'author' => 'Steve Jobs',
             ];
         }
 

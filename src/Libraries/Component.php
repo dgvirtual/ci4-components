@@ -13,6 +13,8 @@
 
 namespace Dgvirtual\Components\Libraries;
 
+use Throwable;
+
 /**
  * Class Component
  *
@@ -45,7 +47,7 @@ class Component
      * Stores the view name.
      *
      * @param string $view The name of the view to be rendered.
-     * @return Component
+     *
      * @codeCoverageIgnore
      */
     public function withView(string $view): Component
@@ -59,7 +61,7 @@ class Component
      * Set the data that should be passed along to the view.
      *
      * @param array $data The data to be passed to the view.
-     * @return Component
+     *
      * @codeCoverageIgnore
      */
     public function withData(array $data): Component
@@ -73,6 +75,7 @@ class Component
      * Returns the processed component view.
      *
      * @return string The rendered view content.
+     *
      * @codeCoverageIgnore
      */
     public function render(): string
@@ -84,7 +87,8 @@ class Component
      * Renders the view when no corresponding class has been found.
      *
      * @param string $view The Component view file to be rendered.
-     * @param array $data The data to be passed to the view.
+     * @param array  $data The data to be passed to the view.
+     *
      * @return string The rendered view content.
      */
     protected function renderView(string $view, array $data): string
@@ -93,11 +97,14 @@ class Component
         return (static function (string $view, $data) {
             extract($data);
             ob_start();
+
             try {
                 eval('?>' . file_get_contents($view));
+
                 return ob_get_clean() ?: '';
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 ob_end_clean();
+
                 throw $e;
             } finally {
                 if (ob_get_length()) {

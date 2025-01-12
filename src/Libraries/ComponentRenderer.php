@@ -13,8 +13,9 @@
 
 namespace Dgvirtual\Components\Libraries;
 
-use RuntimeException;
 use Dgvirtual\Components\Config\Components;
+use RuntimeException;
+use Throwable;
 
 /**
  * Class ComponentRenderer
@@ -36,6 +37,7 @@ class ComponentRenderer
      * Called by the View class' render method.
      *
      * @param string|null $output The HTML content to be processed.
+     *
      * @return string The processed HTML content with rendered components.
      */
     public function render(?string $output): string
@@ -48,7 +50,6 @@ class ComponentRenderer
          * Try to locate any custom tags, with names like: x-sidebar, x-btn, etc.
          * Set timers to measure performance of each step.
          */
-
         service('timer')->start('self-closing');
         $output = $this->renderSelfClosingTags($output);
         service('timer')->stop('self-closing');
@@ -63,7 +64,8 @@ class ComponentRenderer
     /**
      * Finds and renders any self-closing tags, i.e. <x-foo />
      *
-     * @param string  $output The HTML content to be processed.
+     * @param string $output The HTML content to be processed.
+     *
      * @return string The HTML content with self-closing tags replaced by the view
      *                component content.
      */
@@ -125,6 +127,7 @@ class ComponentRenderer
      * Finds and renders any paired tags, i.e. <x-foo>content</x-foo>
      *
      * @param string $output The HTML content to be processed.
+     *
      * @return string The HTML content with rendered paired tags.
      */
     private function renderPairedTags(string $output): string
@@ -155,6 +158,7 @@ class ComponentRenderer
      * Parses a string to grab any key/value pairs, HTML attributes.
      *
      * @param string $attributeString The string containing HTML attributes.
+     *
      * @return array The parsed attributes as an associative array.
      */
     private function parseAttributes(string $attributeString): array
@@ -193,7 +197,8 @@ class ComponentRenderer
      * Renders the view when no corresponding class has been found.
      *
      * @param string $view The view file to be rendered.
-     * @param array $data The data to be passed to the view.
+     * @param array  $data The data to be passed to the view.
+     *
      * @return string The rendered view content.
      */
     private function renderView(string $view, array $data): string
@@ -202,11 +207,14 @@ class ComponentRenderer
         return (static function (string $view, $data) {
             extract($data);
             ob_start();
+
             try {
                 eval('?>' . file_get_contents($view));
+
                 return ob_get_clean() ?: '';
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 ob_end_clean();
+
                 throw $e;
             } finally {
                 if (ob_get_length()) {
@@ -227,6 +235,7 @@ class ComponentRenderer
      *
      * @param string $name The name of the component.
      * @param string $view The view file associated with the component.
+     *
      * @return Component|null The instance of the component or null if not found.
      */
     private function factory(string $name, string $view): ?Component
@@ -257,7 +266,9 @@ class ComponentRenderer
      * minus the 'x-'.
      *
      * @param string $name The name of the component.
+     *
      * @return string The path to the view file.
+     *
      * @throws RuntimeException If the view file is not found.
      */
     private function locateView(string $name): string
@@ -289,7 +300,7 @@ class ComponentRenderer
             // @phpstan-ignore-next-line
             // todo: figure how to make the vscode error go?
             $componentsLookupPaths = config(\Config\Components::class)->componentsLookupPaths;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // If no Config\Components file is created, fall back to the module configuration
             $componentsLookupPaths = config(Components::class)->componentsLookupPaths;
         }
@@ -301,6 +312,7 @@ class ComponentRenderer
      * Removes surrounding quotes from a string.
      *
      * @param string $string The string to be processed.
+     *
      * @return string The string without surrounding quotes.
      */
     private function stripQuotes(string $string): string

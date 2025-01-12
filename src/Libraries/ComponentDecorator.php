@@ -28,6 +28,7 @@ class ComponentDecorator implements ViewDecoratorInterface
      * Decorates the given HTML with rendered components.
      *
      * @param string $html The HTML content to be decorated.
+     *
      * @return string The decorated HTML content.
      */
     public static function decorate(string $html): string
