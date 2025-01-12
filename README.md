@@ -91,7 +91,7 @@ Now you can make some components of your own and put them in
 ## How To Write and Use Components
 
 Example components of all three types listed below are available in the
-`src/View/Components` folder of the project. They can be used immediately.
+`src/Components` folder of the project. They can be used immediately.
 
 ### Self-Closing Tag Components
 
@@ -189,7 +189,7 @@ implement a method called `render()`.
 You would call it in one of the ways previously described.
 
 See a usable basic example of `famous-quotes` component in the
-`src/Views/Components` folder.
+`src/Components` folder.
 
 It can be inserted into your project like this (self closing, no atributes):
 
@@ -222,7 +222,7 @@ public $componentsLookupPaths = [
   // your local components
   APPPATH . 'Views/Components/',
   // example components
-  __DIR__ . '/../Views/Components/',
+  __DIR__ . '/../Components/',
 ];
 ```
 

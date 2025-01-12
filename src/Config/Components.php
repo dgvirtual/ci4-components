@@ -22,6 +22,6 @@ class Components extends BaseConfig
         // your local components
         APPPATH . 'Views/Components/',
         // example components
-        __DIR__ . '/../Views/Components/',
+        __DIR__ . '/../Components/',
     ];
 }

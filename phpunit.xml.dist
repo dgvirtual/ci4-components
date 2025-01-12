@@ -61,7 +61,7 @@
         <exclude>
             <directory suffix=".php">./src/Config</directory>
             <!-- change to components later -->
-            <directory suffix=".php">./src/Views/Components</directory>
+            <directory suffix=".php">./src/Components</directory>
         </exclude>
     </source>
 </phpunit>

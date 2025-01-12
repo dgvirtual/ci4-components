@@ -142,7 +142,7 @@ class ComponentRendererTest extends TestCase
     public function testFactoryIsNotInstance()
     {
         $name = 'green-button';
-        $view = __DIR__ . '/../src/Views/Components/green-button.php';
+        $view = __DIR__ . '/../src/Components/green-button.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertNull($result);
     }
@@ -150,7 +150,7 @@ class ComponentRendererTest extends TestCase
     public function testFactoryIsInstance()
     {
         $name = 'famous-quotes';
-        $view = __DIR__ . '/../src/Views/Components/famous-quotes.php';
+        $view = __DIR__ . '/../src/Components/famous-quotes.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertInstanceOf(Component::class, $result);
     }
@@ -160,7 +160,7 @@ class ComponentRendererTest extends TestCase
         // do mismatch: component class is valid, view file exists, but
         // does not have a corresponding class
         $name = 'green-button';
-        $view = __DIR__ . '/../src/Views/Components/famous-quotes.php';
+        $view = __DIR__ . '/../src/Components/famous-quotes.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertNull($result);
     }

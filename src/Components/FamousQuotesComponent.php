@@ -1,6 +1,6 @@
 <?php
 
-namespace Dgvirtual\Components\Views\Components;
+namespace Dgvirtual\Components\Components;
 
 /**
  * This example controlled component allows to retrieve a random famous quote
