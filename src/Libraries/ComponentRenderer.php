@@ -246,6 +246,8 @@ class ComponentRenderer
             return (new $className())->withView($view);
         }
 
+        log_message('debug', 'Component class not found: ' . $className);
+
         return null;
     }
 
