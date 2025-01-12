@@ -1,13 +1,11 @@
-<?php declare(strict_types=1);
+<?php
 
 namespace Tests;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Dgvirtual\Components\Libraries\Component;
 use Dgvirtual\Components\Libraries\ComponentRenderer;
 
-#[CoversClass(ComponentRenderer::class)]
 class ComponentRendererTest extends TestCase
 {
     private $renderer;
@@ -16,6 +14,30 @@ class ComponentRendererTest extends TestCase
     {
         parent::setUp();
         $this->renderer = new ComponentRenderer();
+        helper('cache');
+    }
+
+    protected function setCache($slotValue = null)
+    {
+        // Set the cache with key 'famous_quote'
+        $quoteData = [
+            'quote' => [
+                'text' => 'The only way to do great work is to love what you do',
+                'author' => 'Steve Jobs'
+            ],
+            'seconds' => 60,
+        ];
+        if ($slotValue) {
+            $quoteData['slot'] = $slotValue;
+        }
+        cache()->save('famous_quote', $quoteData, 60);
+    }
+
+    protected function emptyCache(): void
+    {
+        // Delete the cache key 'famous_quote'
+        cache()->delete('famous_quote');
+        parent::tearDown();
     }
 
     public function testRender()
@@ -23,38 +45,56 @@ class ComponentRendererTest extends TestCase
         $output = '<div><x-green-button>Click me!</x-green-button></div>';
         $result = $this->renderer->render($output);
         $this->assertIsString($result);
+    }
 
+    public function testRenderEmpty()
+    {
+        $output = '';
+        $result = $this->renderer->render($output);
+        $this->assertEquals($result, '');
     }
 
     public function testRenderSelfClosingTags()
     {
         $output = '<x-avatar src="https://example.com/myavatar" />';
-        $reflection = new \ReflectionClass($this->renderer);
-        $method = $reflection->getMethod('renderSelfClosingTags');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->renderer, [$output]);
+        $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$output]);
         $this->assertIsString($result);
         $this->assertStringContainsString('rounded-circle shadow-4', $result);
+    }
+
+    public function testRenderSelfClosingTagsControlledComponent()
+    {
+        $this->setCache();
+        $output = '<x-famous-quotes />'; // used as self-closing here
+        $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$output]);
+        $this->assertIsString($result);
+        $this->assertStringContainsString('blockquote-footer text-center', $result);
+        $this->emptyCache();
     }
 
     public function testRenderPairedTags()
     {
         $output = '<x-green-button>Click me!</x-green-button>';
-        $reflection = new \ReflectionClass($this->renderer);
-        $method = $reflection->getMethod('renderPairedTags');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->renderer, [$output]);
+        $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$output]);
         $this->assertIsString($result);
         $this->assertStringContainsString('<button', $result);
+    }
+
+    public function testRenderPairedTagsControlledComponent()
+    {
+        $this->setCache('Really Famous');
+        $output = '<x-famous-quotes seconds="5">Really Famous</x-famous-quotes>';
+        $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$output]);
+        $this->assertIsString($result);
+        $this->assertStringContainsString('Really Famous', $result);
+        cache()->delete('famous_quote');
+        $this->emptyCache();
     }
 
     public function testParseAttributes()
     {
         $attributes = 'class="btn" type="button"';
-        $reflection = new \ReflectionClass($this->renderer);
-        $method = $reflection->getMethod('parseAttributes');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->renderer, [$attributes]);
+        $result = $this->invokeMethod($this->renderer, 'parseAttributes', [$attributes]);
         $this->assertIsArray($result);
         $this->assertContains('button', $result);
     }
@@ -70,10 +110,7 @@ class ComponentRendererTest extends TestCase
             PHP;
         file_put_contents($view, $phpCode);
 
-        $reflection = new \ReflectionClass($this->renderer);
-        $method = $reflection->getMethod('renderView');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->renderer, [$view, $data]);
+        $result = $this->invokeMethod($this->renderer, 'renderView', [$view, $data]);
 
         // Clean up the temporary view file
         unlink($view);
@@ -81,16 +118,32 @@ class ComponentRendererTest extends TestCase
         $this->assertIsString($result);
     }
 
+    public function testRenderViewWithMisplacedVariable()
+    {
+        $view = __DIR__ . '/testViewWithMisplacedVariable.php';
+        $data = ['cardTextMisnamed' => 'What a nice card!'];
+
+        // Create a temporary view file with a missing variable
+        $phpCode = <<<PHP
+            <div class="card"><?php echo \$cardText; ?></div>
+            PHP;
+        file_put_contents($view, $phpCode);
+
+        $this->expectException(\Throwable::class);
+
+        try {
+            $this->invokeMethod($this->renderer, 'renderView', [$view, $data]);
+        } finally {
+            // Clean up the temporary view file
+            unlink($view);
+        }
+    }
+
     public function testFactoryIsNotInstance()
     {
         $name = 'green-button';
         $view = __DIR__ . '/../src/Views/Components/green-button.php';
-        $reflection = new \ReflectionClass($this->renderer);
-        $method = $reflection->getMethod('factory');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->renderer, [$name, $view]);
-        // result should be null, since the component is not cotrolled
-        // = does not have a corresponding class
+        $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertNull($result);
     }
 
@@ -98,22 +151,35 @@ class ComponentRendererTest extends TestCase
     {
         $name = 'famous-quotes';
         $view = __DIR__ . '/../src/Views/Components/famous-quotes.php';
-        $reflection = new \ReflectionClass($this->renderer);
-        $method = $reflection->getMethod('factory');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->renderer, [$name, $view]);
+        $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertInstanceOf(Component::class, $result);
+    }
+
+    public function testFactoryClassNotFound()
+    {
+        // do mismatch: component class is valid, view file exists, but
+        // does not have a corresponding class
+        $name = 'green-button';
+        $view = __DIR__ . '/../src/Views/Components/famous-quotes.php';
+        $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
+        $this->assertNull($result);
     }
 
     public function testLocateView()
     {
         $name = 'green-button';
-        $reflection = new \ReflectionClass($this->renderer);
-        $method = $reflection->getMethod('locateView');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->renderer, [$name]);
+        $result = $this->invokeMethod($this->renderer, 'locateView', [$name]);
         $this->assertIsString($result);
         $this->assertFileExists($result);
+    }
+
+    public function testLocateViewNotFound()
+    {
+        $name = 'yellow-button';
+        // Set the expectation for the exception BEFORE invoking the method
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('View not found for component: yellow-button');
+        $this->invokeMethod($this->renderer, 'locateView', [$name]);
     }
 
     public function testGetComponentsLookupPaths()
@@ -133,7 +199,6 @@ class ComponentRendererTest extends TestCase
         $result = $this->invokeMethod($this->renderer, 'stripQuotes', [$string]);
         $this->assertEquals($result, 'quoted string');
     }
-
 
     protected function invokeMethod(&$object, $methodName, array $parameters = [])
     {

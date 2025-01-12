@@ -19,7 +19,7 @@
             <clover outputFile="build/phpunit/clover.xml"/>
             <html outputDirectory="build/phpunit/html"/>
             <php outputFile="build/phpunit/coverage.serialized"/>
-            <text outputFile="php://stdout" showUncoveredFiles="false"/>
+            <text outputFile="php://stdout" showUncoveredFiles="true"/>
             <xml outputDirectory="build/phpunit/xml-coverage"/>
         </report>
     </coverage>

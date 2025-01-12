@@ -89,6 +89,7 @@ class Component
      */
     protected function renderView(string $view, array $data): string
     {
+        // make sure the buffer is closed clean in case of error/exception
         return (static function (string $view, $data) {
             extract($data);
             ob_start();
@@ -98,6 +99,10 @@ class Component
             } catch (\Throwable $e) {
                 ob_end_clean();
                 throw $e;
+            } finally {
+                if (ob_get_length()) {
+                    ob_end_clean();
+                }
             }
         })($view, $data);
     }
