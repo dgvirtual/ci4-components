@@ -42,6 +42,7 @@ final class ComponentDecoratorTest extends TestCase
         $this->assertStringContainsString('Click me!', $result);
         $this->assertStringContainsString('Click me too!', $result);
     }
+
     public function testDecoratePairedIncludesPairedAndSelfClosing()
     {
         // improbable example of course
@@ -49,7 +50,7 @@ final class ComponentDecoratorTest extends TestCase
         $result = ComponentDecorator::decorate($html);
         $this->assertIsString($result);
         $this->assertStringContainsString('<button', $result);
-        $this->assertStringContainsString('background-color: green', $result); //green btn rendered
+        $this->assertStringContainsString('background-color: green', $result); // green btn rendered
         $this->assertStringContainsString('background-color: red', $result); // red btn rendered
         $this->assertStringContainsString('<i class="bi ', $result); // icon rendered
         $this->assertStringContainsString('Click me!', $result);

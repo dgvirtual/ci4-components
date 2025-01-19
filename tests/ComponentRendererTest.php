@@ -48,21 +48,21 @@ final class ComponentRendererTest extends TestCase
 
     public function testRender()
     {
-        $html = '<div><x-button-green>Click me!</x-button-green></div>';
+        $html   = '<div><x-button-green>Click me!</x-button-green></div>';
         $result = $this->renderer->render($html);
         $this->assertIsString($result);
     }
 
     public function testRenderEmpty()
     {
-        $html = '';
+        $html   = '';
         $result = $this->renderer->render($html);
         $this->assertSame($result, '');
     }
 
     public function testRenderSelfClosingTags()
     {
-        $html = '<x-avatar src="https://example.com/myavatar" />';
+        $html   = '<x-avatar src="https://example.com/myavatar" />';
         $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('rounded-circle shadow-4', $result);
@@ -71,7 +71,7 @@ final class ComponentRendererTest extends TestCase
     public function testRenderSelfClosingTagsControlledComponent()
     {
         $this->setCache();
-        $html = '<x-famous-quotes />'; // used as self-closing here
+        $html   = '<x-famous-quotes />'; // used as self-closing here
         $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('blockquote-footer text-center', $result);
@@ -80,7 +80,7 @@ final class ComponentRendererTest extends TestCase
 
     public function testRenderPairedTags()
     {
-        $html = '<x-button-green>Click me!</x-button-green>';
+        $html   = '<x-button-green>Click me!</x-button-green>';
         $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('<button', $result);
@@ -98,7 +98,7 @@ final class ComponentRendererTest extends TestCase
     public function testRenderPairedTagsControlledComponent()
     {
         $this->setCache('Really Famous');
-        $html = '<x-famous-quotes seconds="5">Really Famous</x-famous-quotes>';
+        $html   = '<x-famous-quotes seconds="5">Really Famous</x-famous-quotes>';
         $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('Really Famous', $result);
