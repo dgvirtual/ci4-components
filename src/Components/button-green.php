@@ -1,5 +1,5 @@
 <button
-    style="color: #ffffff; background-color: #28a745; border-color: #28a745;"
+    style="color: white; background-color: red; border-color: red;"
     <?= isset($onclick) ? 'onclick="' . $onclick . '"' : '' ?>
     type="<?= $type ?? 'submit' ?>"
 >

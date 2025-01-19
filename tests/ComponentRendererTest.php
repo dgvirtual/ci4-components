@@ -48,22 +48,22 @@ final class ComponentRendererTest extends TestCase
 
     public function testRender()
     {
-        $output = '<div><x-green-button>Click me!</x-green-button></div>';
-        $result = $this->renderer->render($output);
+        $html = '<div><x-button-green>Click me!</x-button-green></div>';
+        $result = $this->renderer->render($html);
         $this->assertIsString($result);
     }
 
     public function testRenderEmpty()
     {
-        $output = '';
-        $result = $this->renderer->render($output);
+        $html = '';
+        $result = $this->renderer->render($html);
         $this->assertSame($result, '');
     }
 
     public function testRenderSelfClosingTags()
     {
-        $output = '<x-avatar src="https://example.com/myavatar" />';
-        $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$output]);
+        $html = '<x-avatar src="https://example.com/myavatar" />';
+        $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('rounded-circle shadow-4', $result);
     }
@@ -71,8 +71,8 @@ final class ComponentRendererTest extends TestCase
     public function testRenderSelfClosingTagsControlledComponent()
     {
         $this->setCache();
-        $output = '<x-famous-quotes />'; // used as self-closing here
-        $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$output]);
+        $html = '<x-famous-quotes />'; // used as self-closing here
+        $result = $this->invokeMethod($this->renderer, 'renderSelfClosingTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('blockquote-footer text-center', $result);
         $this->emptyCache();
@@ -80,17 +80,26 @@ final class ComponentRendererTest extends TestCase
 
     public function testRenderPairedTags()
     {
-        $output = '<x-green-button>Click me!</x-green-button>';
-        $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$output]);
+        $html = '<x-button-green>Click me!</x-button-green>';
+        $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('<button', $result);
     }
 
+    // public function testRenderPairedTagsRecursive()
+    // {
+    //     $html = '<div class="anything"><x-button-green><x-bootstrap-icon /> Click me!</x-button-green></div>';
+    //     $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$html]);
+
+    //     $this->assertIsString($result);
+    //     $this->assertStringContainsString('<i class="bi ', $result);
+    // }
+
     public function testRenderPairedTagsControlledComponent()
     {
         $this->setCache('Really Famous');
-        $output = '<x-famous-quotes seconds="5">Really Famous</x-famous-quotes>';
-        $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$output]);
+        $html = '<x-famous-quotes seconds="5">Really Famous</x-famous-quotes>';
+        $result = $this->invokeMethod($this->renderer, 'renderPairedTags', [$html]);
         $this->assertIsString($result);
         $this->assertStringContainsString('Really Famous', $result);
         cache()->delete('famous_quote');
@@ -147,8 +156,8 @@ final class ComponentRendererTest extends TestCase
 
     public function testFactoryIsNotInstance()
     {
-        $name   = 'green-button';
-        $view   = __DIR__ . '/../src/Components/green-button.php';
+        $name   = 'button-green';
+        $view   = __DIR__ . '/../src/Components/button-green.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertNull($result);
     }
@@ -165,7 +174,7 @@ final class ComponentRendererTest extends TestCase
     {
         // do mismatch: component class is valid, view file exists, but
         // does not have a corresponding class
-        $name   = 'green-button';
+        $name   = 'button-green';
         $view   = __DIR__ . '/../src/Components/famous-quotes.php';
         $result = $this->invokeMethod($this->renderer, 'factory', [$name, $view]);
         $this->assertNull($result);
@@ -173,7 +182,7 @@ final class ComponentRendererTest extends TestCase
 
     public function testLocateView()
     {
-        $name   = 'green-button';
+        $name   = 'button-green';
         $result = $this->invokeMethod($this->renderer, 'locateView', [$name]);
         $this->assertIsString($result);
         $this->assertFileExists($result);

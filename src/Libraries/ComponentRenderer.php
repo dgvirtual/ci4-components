@@ -132,26 +132,39 @@ class ComponentRenderer
      */
     private function renderPairedTags(string $output): string
     {
-        $pattern = '/<\s*x[-\:](?<name>[\w\-\:\.]*?)(?<attributes>[\s\S\=\'\"]*)?>(?<slot>.*)<\/\s*x-\1\s*>/uiUsm';
+        $pattern = '/(?(DEFINE)(?<marker>x-))
+                        <\g<marker>(?<name>\w[\w\-\:\.]+[^\>\/\s\/])
+                                   (?<attributes>[\s\S\=\'\"]+?)??>
+                            (?(?<!\/>) # Not paired so ignore the rest
+                                (?<slot>.*?)??
+                        <\/\g<marker>\k<name>\s*>
+                            )
+                    /uismx';
 
         /*
-            $matches[0] = full tags matched and all of its content
-            $matches[name] = tag name (minus the `x-`)
-            $matches[attributes] = string of tag attributes (class="foo")
-            $matches[slot] = the content inside the tags
-         */
-        return preg_replace_callback($pattern, function ($match) {
-            $view               = $this->locateView($match['name']);
-            $attributes         = $this->parseAttributes($match['attributes']);
-            $attributes['slot'] = $match['slot'];
-            $component          = $this->factory($match['name'], $view);
+            $match['name']       = tag name (minus the `x-`)
+            $match['attributes'] = string of tag attributes (class="foo")
+            $match['slot']       = the content inside the tags
+        */
 
-            return $component instanceof Component
-                // case of controlled component
-                ? $component->withView($view)->withData($attributes)->render()
-                // case of simple component
-                : $this->renderView($view, $attributes);
-        }, $output) ?? preg_last_error();
+        do {
+            try {
+                $output = preg_replace_callback($pattern, function ($match) {
+                    $view               = $this->locateView($match['name']);
+                    $attributes         = $this->parseAttributes($match['attributes']);
+                    $attributes['slot'] = $match['slot'];
+                    $component          = $this->factory($match['name'], $view);
+
+                    return $component instanceof Component
+                        ? $component->withView($view)->withData($attributes)->render()
+                        : $this->renderView($view, $attributes);
+                }, $output, -1, $replaceCount);
+            } catch (Throwable $e) {
+                break;
+            }
+        } while (! empty($replaceCount));
+
+        return $output ?? preg_last_error();
     }
 
     /**

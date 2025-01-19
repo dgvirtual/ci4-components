@@ -10,14 +10,14 @@ attributes of your choosing. They are written in regular PHP/CSS/HTML. Such
 custom HTML elements can include other HTML elements (custom or default).
 
 Custom component tag always starts with `x-` (like
-`<x-green-button>Click Me!</x-green-button>`).
+`<x-button-green>Click Me!</x-button-green>`).
 
 To illustrate, with Components you write this in your view:
 
 ```php
-<x-green-button onclick="alert('I was clicked!')">
+<x-button-green onclick="alert('I was clicked!')">
    <?= $clickMeLabel ?>
-</x-green-button>
+</x-button-green>
 ```
 
 Which, is merged with the Component definition:
@@ -81,7 +81,7 @@ public array $decorators = [
 ## Try If It Works
 
 **To check if it works with the example components**, put the string
-`<x-green-button>This should look like a button</x-green-button>` in any of your
+`<x-button-green>This should look like a button</x-button-green>` in any of your
 views and see if it renders as a button (if not, all you will see will be simple
 text).
 
@@ -145,12 +145,12 @@ You can include the content within the opening and closing tags by inserting the
 reserved `$slot` variable:
 
 ```php
-<x-green-button onclick="alert('I was clicked!')">
+<x-button-green onclick="alert('I was clicked!')">
   Click Me!
-</x-green-button>
+</x-button-green>
 ```
 
-The component `green-button.php` would look like this:
+The component `button-green.php` would look like this:
 
 ```php
 <button
