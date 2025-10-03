@@ -11,11 +11,16 @@ namespace Dgvirtual\Components\Components;
  */
 
 use Dgvirtual\Components\Libraries\Component;
+use Exception;
 
 class FamousQuotesComponent extends Component
 {
     protected $defaultNoOfSeconds         = 5;
     protected string $famousQuotesAPINode = 'https://zenquotes.io/api/random';
+    protected array $fallback             = [
+        'text'   => 'The only way to do great work is to love what you do',
+        'author' => 'Steve Jobs',
+    ];
 
     public function render(): string
     {
@@ -41,23 +46,25 @@ class FamousQuotesComponent extends Component
         }
 
         // If not cached, fetch from the API
-        $response  = file_get_contents($this->famousQuotesAPINode);
-        $quoteData = json_decode($response, true);
+        try {
+            $response  = file_get_contents($this->famousQuotesAPINode);
+            $quoteData = json_decode($response, true);
 
-        if (isset($quoteData[0])) {
-            $this->data['quote'] = [
-                'text'   => $quoteData[0]['q'],
-                'author' => $quoteData[0]['a'],
-            ];
+            if (isset($quoteData[0])) {
+                $this->data['quote'] = [
+                    'text'   => $quoteData[0]['q'],
+                    'author' => $quoteData[0]['a'],
+                ];
 
-            // Cache the quote for 60 seconds
-            cache()->save($cacheKey, $this->data, $this->data['seconds']);
-        } else {
-            // Default quote if API fails
-            $this->data['quote'] = [
-                'text'   => 'The only way to do great work is to love what you do',
-                'author' => 'Steve Jobs',
-            ];
+                // Cache the quote for X seconds
+                cache()->save($cacheKey, $this->data, $this->data['seconds']);
+            } else {
+                // Default quote if API returns empty or invalid data
+                $this->data['quote'] = $this->fallback;
+            }
+        } catch (Exception $e) {
+            // Default quote if API request fails
+            $this->data['quote'] = $this->fallback;
         }
 
         return $this->data;
