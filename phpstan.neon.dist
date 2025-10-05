@@ -7,7 +7,6 @@ parameters:
 	bootstrapFiles:
 		- vendor/codeigniter4/framework/system/Test/bootstrap.php
 	excludePaths:
-		- src/Debug/Toolbar.php
 		- src/Views/*
 	ignoreErrors:
 		- '#Variable \$testString might not be defined.#'

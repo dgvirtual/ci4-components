@@ -42,8 +42,8 @@ class ComponentRenderer
      */
     public function render(?string $output): string
     {
-        if (empty($output)) {
-            return $output;
+        if ($output === null || $output === '') {
+            return '';
         }
 
         /**
@@ -162,7 +162,7 @@ class ComponentRenderer
             } catch (Throwable $e) {
                 break;
             }
-        } while (! empty($replaceCount));
+        } while ($replaceCount !== 0);
 
         return $output ?? preg_last_error();
     }
@@ -310,8 +310,7 @@ class ComponentRenderer
     private function getComponentsLookupPaths(): array
     {
         try {
-            // @phpstan-ignore-next-line
-            // todo: figure how to make the vscode error go?
+            /** @disregard */
             $componentsLookupPaths = config(\Config\Components::class)->componentsLookupPaths;
         } catch (Throwable $e) {
             // If no Config\Components file is created, fall back to the module configuration
