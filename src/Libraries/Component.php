@@ -44,6 +44,16 @@ class Component
     protected $view;
 
     /**
+     * How many seconds the renderer should cache this component's rendered HTML.
+     * Set to an integer to enable renderer-level output caching for this component.
+     * Null (default) means no renderer caching.
+     *
+     * Note: this is separate from any data-caching the component may do internally.
+     * See README for details and caveats.
+     */
+    public ?int $cacheTtl = null;
+
+    /**
      * Stores the view name.
      *
      * @param string $view The name of the view to be rendered.
@@ -69,6 +79,24 @@ class Component
         $this->data = $data;
 
         return $this;
+    }
+
+    /**
+     * Returns extra data to mix into the renderer's cache key for this component.
+     *
+     * Override this method when the rendered output depends on something beyond
+     * the component's attributes (e.g. the currently logged-in user, locale, etc.)
+     * so that different contexts produce different cache entries.
+     *
+     * Example:
+     *   public function cacheKey(): string
+     *   {
+     *       return (string) session('user_id');
+     *   }
+     */
+    public function cacheKey(): string
+    {
+        return '';
     }
 
     /**
@@ -99,7 +127,7 @@ class Component
             ob_start();
 
             try {
-                eval('?>' . file_get_contents($view));
+                include $view;
 
                 return ob_get_clean() ?: '';
             } catch (Throwable $e) {

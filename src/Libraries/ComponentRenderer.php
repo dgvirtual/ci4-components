@@ -24,6 +24,14 @@ use Throwable;
  */
 class ComponentRenderer
 {
+    /**
+     * Caches resolved view file paths for the lifetime of the request so that
+     * the filesystem is only hit once per unique component name.
+     *
+     * @var array<string, string>
+     */
+    private static array $viewPathCache = [];
+
     public function __construct()
     {
         helper('inflector');
@@ -115,11 +123,7 @@ class ComponentRenderer
             $attributes = $this->parseAttributes($match['attributes']);
             $component  = $this->factory($match['name'], $view);
 
-            return $component instanceof Component
-                // case of controlled component
-                ? $component->withView($view)->withData($attributes)->render()
-                // case of simple component
-                : $this->renderView($view, $attributes);
+            return $this->renderCached($match['name'], $view, $attributes, $component);
         }, $output);
     }
 
@@ -155,9 +159,7 @@ class ComponentRenderer
                     $attributes['slot'] = $match['slot'];
                     $component          = $this->factory($match['name'], $view);
 
-                    return $component instanceof Component
-                        ? $component->withView($view)->withData($attributes)->render()
-                        : $this->renderView($view, $attributes);
+                    return $this->renderCached($match['name'], $view, $attributes, $component);
                 }, $output, -1, $replaceCount);
             } catch (Throwable $e) {
                 break;
@@ -222,7 +224,7 @@ class ComponentRenderer
             ob_start();
 
             try {
-                eval('?>' . file_get_contents($view));
+                include $view;
 
                 return ob_get_clean() ?: '';
             } catch (Throwable $e) {
@@ -286,6 +288,10 @@ class ComponentRenderer
      */
     private function locateView(string $name): string
     {
+        if (isset(self::$viewPathCache[$name])) {
+            return self::$viewPathCache[$name];
+        }
+
         // DONATO: removed Bonfire2 theme-related code here, changed lookup paths config file
 
         $componentsLookupPaths = $this->getComponentsLookupPaths();
@@ -294,12 +300,95 @@ class ComponentRenderer
             $filePath = $componentPath . $name . '.php';
 
             if (is_file($filePath)) {
+                self::$viewPathCache[$name] = $filePath;
+
                 return $filePath;
             }
         }
 
         throw new RuntimeException('View not found for component: ' . $name);
         // @todo look in all normal namespaces
+    }
+
+    /**
+     * Renders a component, serving from or storing to CI4's cache when a TTL
+     * is configured.
+     *
+     * For class-based components the TTL is read from Component::$cacheTtl.
+     * For view-only components it is read from Components::$viewCacheTtl in the
+     * app (or module) config. A null TTL skips caching entirely.
+     *
+     * @param string         $name       Component name (e.g. "button-green").
+     * @param string         $view       Absolute path to the view file.
+     * @param array          $attributes Parsed tag attributes (includes 'slot' for paired tags).
+     * @param Component|null $component  Class-based component instance, or null for view-only.
+     *
+     * @return string The rendered HTML.
+     */
+    private function renderCached(string $name, string $view, array $attributes, ?Component $component): string
+    {
+        $cacheTtl = $component instanceof Component
+            ? $component->cacheTtl
+            : $this->getViewCacheTtl();
+
+        $cacheKey = null;
+
+        if ($cacheTtl !== null) {
+            $cacheKey = $this->buildCacheKey($name, $view, $attributes, $component);
+            $cached   = cache($cacheKey);
+
+            if ($cached !== null && $cached !== false) {
+                return $cached;
+            }
+        }
+
+        $result = $component instanceof Component
+            ? $component->withView($view)->withData($attributes)->render()
+            : $this->renderView($view, $attributes);
+
+        if ($cacheKey !== null) {
+            cache()->save($cacheKey, $result, $cacheTtl);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Builds a deterministic cache key for a component invocation.
+     *
+     * The key is derived from the component name, the view file path and its
+     * last-modified time (so it invalidates automatically after a deploy that
+     * changes the file), the serialised attributes, and any extra contributor
+     * returned by Component::cacheKey().
+     *
+     * @param string         $name       Component name.
+     * @param string         $view       Absolute path to the view file.
+     * @param array          $attributes Parsed tag attributes.
+     * @param Component|null $component  Class-based component instance, or null.
+     *
+     * @return string Cache key string prefixed with 'xcomp_'.
+     */
+    private function buildCacheKey(string $name, string $view, array $attributes, ?Component $component): string
+    {
+        $fileMtime = @filemtime($view) ?: 0;
+        $extraKey  = ($component instanceof Component) ? $component->cacheKey() : '';
+
+        return 'xcomp_' . md5($name . $view . $fileMtime . serialize($attributes) . $extraKey);
+    }
+
+    /**
+     * Returns the configured default cache TTL for view-only components.
+     *
+     * @return int|null Seconds, or null if caching is disabled.
+     */
+    private function getViewCacheTtl(): ?int
+    {
+        try {
+            /** @disregard */
+            return config(\Config\Components::class)->viewCacheTtl;
+        } catch (Throwable $e) {
+            return config(Components::class)->viewCacheTtl;
+        }
     }
 
     /**

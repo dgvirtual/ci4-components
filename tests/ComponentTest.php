@@ -74,4 +74,22 @@ final class ComponentTest extends TestCase
             unlink($view);
         }
     }
+
+    /**
+     * Test whether cacheTtl defaults to null on the base Component class.
+     */
+    public function testCacheTtlDefaultIsNull(): void
+    {
+        $component = new Component();
+        $this->assertNull($component->cacheTtl);
+    }
+
+    /**
+     * Test whether cacheKey() returns an empty string by default.
+     */
+    public function testCacheKeyDefaultIsEmptyString(): void
+    {
+        $component = new Component();
+        $this->assertSame('', $component->cacheKey());
+    }
 }

@@ -236,6 +236,114 @@ _Note:_ The _first component found_ in the lookup paths will be used. Therefore,
 if you have custom components, list their paths first, and the default ones
 last.
 
+## Component Output Caching
+
+By default every component re-renders on every request. For pages with many
+components, or for components that hit a database or an external API, you can
+enable output caching so that the rendered HTML is stored in CI4's cache service
+and returned immediately on subsequent requests.
+
+### How the cache key works
+
+The renderer builds a deterministic cache key from:
+
+- the component name
+- the view file path **and its last-modified time** (so the cache automatically
+  invalidates after you change the file and deploy)
+- all tag attributes (including the `$slot` content for paired-tag components)
+- an optional extra contributor from `Component::cacheKey()` (see below)
+
+Different attribute values produce different cache entries, so
+`<x-avatar src="a.jpg" />` and `<x-avatar src="b.jpg" />` are cached
+independently.
+
+### Caching view-only components (no class)
+
+Set `$viewCacheTtl` in your `app/Config/Components.php`:
+
+```php
+namespace Config;
+
+use Dgvirtual\Components\Config\Components as BaseComponents;
+
+class Components extends BaseComponents
+{
+    public $componentsLookupPaths = [
+        APPPATH . 'Views/Components/',
+    ];
+
+    /**
+     * Cache all view-only components for 10 minutes.
+     * Set to null (default) to disable.
+     */
+    public ?int $viewCacheTtl = 600;
+}
+```
+
+This applies to every component that has no companion `*Component.php` class.
+Components backed by a class are unaffected by this setting; they use
+`$cacheTtl` on the class instead (see below).
+
+### Caching class-based components
+
+Add the `$cacheTtl` property to your component class:
+
+```php
+class AvatarComponent extends Component
+{
+    /**
+     * Cache the rendered HTML for 1 hour.
+     * Null (default) means no renderer caching.
+     */
+    public ?int $cacheTtl = 3600;
+}
+```
+
+### Personalised components: adding extra cache-key contributors
+
+If a component's output depends on something beyond its attributes — such as the
+currently logged-in user — override `cacheKey()` so that different contexts
+produce different cache entries:
+
+```php
+class UserCardComponent extends Component
+{
+    public ?int $cacheTtl = 300;
+
+    public function cacheKey(): string
+    {
+        // One cache entry per user
+        return (string) session('user_id');
+    }
+}
+```
+
+Without this, every user would receive the first user's cached HTML.
+
+### Important: know what your component renders
+
+Before enabling caching, make sure you account for **every** input that
+influences the HTML output:
+
+| Input source | Covered automatically? |
+|---|---|
+| Tag attributes | Yes |
+| `$slot` content | Yes (it is part of attributes) |
+| View file content | Yes (mtime-based) |
+| Database / API calls | **No** — set a suitable TTL |
+| `session()` / logged-in user | **No** — use `cacheKey()` |
+| `$_SERVER`, `$_GET`, etc. | **No** — use `cacheKey()` |
+
+When in doubt, leave `$cacheTtl = null` (the default) and let the component
+manage its own caching internally (as the `famous-quotes` example does).
+
+### CI4 cache backend
+
+The renderer uses CI4's `cache()` helper, which reads your application's
+`app/Config/Cache.php` settings. Switching from file cache to Redis or Memcached
+there automatically applies to component caching as well — no changes needed
+here.
+
 ## Credits
 
 This project is an adaptation of Bonfire2 Component rendering functionality for

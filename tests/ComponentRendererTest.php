@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Dgvirtual\Components\Config\Components;
 use Dgvirtual\Components\Libraries\Component;
 use Dgvirtual\Components\Libraries\ComponentRenderer;
 use PHPUnit\Framework\TestCase;
@@ -213,6 +214,147 @@ final class ComponentRendererTest extends TestCase
         $string = '"quoted string"';
         $result = $this->invokeMethod($this->renderer, 'stripQuotes', [$string]);
         $this->assertSame($result, 'quoted string');
+    }
+
+    public function testBuildCacheKeyDiffersOnAttributes(): void
+    {
+        $view = __DIR__ . '/testCacheKeyView.php';
+        file_put_contents($view, '<img src="<?= $src ?>"/>');
+
+        $key1 = $this->invokeMethod($this->renderer, 'buildCacheKey', ['avatar', $view, ['src' => 'a.jpg'], null]);
+        $key2 = $this->invokeMethod($this->renderer, 'buildCacheKey', ['avatar', $view, ['src' => 'b.jpg'], null]);
+
+        unlink($view);
+
+        $this->assertIsString($key1);
+        $this->assertStringStartsWith('xcomp_', $key1);
+        $this->assertNotSame($key1, $key2);
+    }
+
+    public function testBuildCacheKeyDiffersOnComponentCacheKey(): void
+    {
+        $view = __DIR__ . '/testCacheKeyView2.php';
+        file_put_contents($view, '<div></div>');
+
+        $componentA = new class () extends Component {
+            public function cacheKey(): string
+            {
+                return 'user_1';
+            }
+        };
+        $componentB = new class () extends Component {
+            public function cacheKey(): string
+            {
+                return 'user_2';
+            }
+        };
+
+        $key1 = $this->invokeMethod($this->renderer, 'buildCacheKey', ['widget', $view, [], $componentA]);
+        $key2 = $this->invokeMethod($this->renderer, 'buildCacheKey', ['widget', $view, [], $componentB]);
+
+        unlink($view);
+
+        $this->assertNotSame($key1, $key2);
+    }
+
+    public function testRenderCachedViewOnlyStoresInCache(): void
+    {
+        $view = __DIR__ . '/testCacheStoreView.php';
+        file_put_contents($view, '<span><?= $label ?? "ok" ?></span>');
+
+        $attrs    = ['label' => 'cached!'];
+        $cacheKey = $this->invokeMethod($this->renderer, 'buildCacheKey', ['test-widget', $view, $attrs, null]);
+        cache()->delete($cacheKey);
+
+        $config               = config(Components::class);
+        $originalTtl          = $config->viewCacheTtl;
+        $config->viewCacheTtl = 60;
+
+        try {
+            $result = $this->invokeMethod($this->renderer, 'renderCached', ['test-widget', $view, $attrs, null]);
+        } finally {
+            $config->viewCacheTtl = $originalTtl;
+            unlink($view);
+        }
+
+        $this->assertIsString($result);
+        $this->assertStringContainsString('cached!', $result);
+
+        $stored = cache($cacheKey);
+        $this->assertSame($result, $stored);
+
+        cache()->delete($cacheKey);
+    }
+
+    public function testRenderCachedReturnsCachedValueOnHit(): void
+    {
+        $view = __DIR__ . '/testCacheHitView.php';
+        file_put_contents($view, '<span>fresh</span>');
+
+        $attrs    = [];
+        $cacheKey = $this->invokeMethod($this->renderer, 'buildCacheKey', ['hit-widget', $view, $attrs, null]);
+        cache()->save($cacheKey, '<span>from cache</span>', 60);
+
+        $config               = config(Components::class);
+        $originalTtl          = $config->viewCacheTtl;
+        $config->viewCacheTtl = 60;
+
+        try {
+            $result = $this->invokeMethod($this->renderer, 'renderCached', ['hit-widget', $view, $attrs, null]);
+        } finally {
+            $config->viewCacheTtl = $originalTtl;
+            unlink($view);
+        }
+
+        $this->assertSame('<span>from cache</span>', $result);
+
+        cache()->delete($cacheKey);
+    }
+
+    public function testRenderCachedClassComponentStoresInCache(): void
+    {
+        $view = __DIR__ . '/testClassCacheView.php';
+        file_put_contents($view, '<b><?= $text ?? "" ?></b>');
+
+        $component = new class () extends Component {
+            public ?int $cacheTtl = 60;
+
+            public function render(): string
+            {
+                return '<b>class result</b>';
+            }
+        };
+
+        $attrs    = ['text' => 'hello'];
+        $cacheKey = $this->invokeMethod($this->renderer, 'buildCacheKey', ['class-widget', $view, $attrs, $component]);
+        cache()->delete($cacheKey);
+
+        $result = $this->invokeMethod($this->renderer, 'renderCached', ['class-widget', $view, $attrs, $component]);
+
+        unlink($view);
+
+        $this->assertSame('<b>class result</b>', $result);
+        $this->assertSame($result, cache($cacheKey));
+
+        cache()->delete($cacheKey);
+    }
+
+    public function testRenderCachedSkipsCacheWhenTtlIsNull(): void
+    {
+        $view = __DIR__ . '/testNoCacheView.php';
+        file_put_contents($view, '<i>no cache</i>');
+
+        $attrs    = [];
+        $cacheKey = $this->invokeMethod($this->renderer, 'buildCacheKey', ['no-cache-widget', $view, $attrs, null]);
+        cache()->delete($cacheKey);
+
+        // viewCacheTtl stays null (default) — no caching
+        $result = $this->invokeMethod($this->renderer, 'renderCached', ['no-cache-widget', $view, $attrs, null]);
+
+        unlink($view);
+
+        $this->assertStringContainsString('no cache', $result);
+        $this->assertNull(cache($cacheKey));
     }
 
     protected function invokeMethod(&$object, $methodName, array $parameters = [])
