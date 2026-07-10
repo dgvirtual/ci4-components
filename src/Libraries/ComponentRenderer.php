@@ -57,14 +57,28 @@ class ComponentRenderer
         /**
          * Try to locate any custom tags, with names like: x-sidebar, x-btn, etc.
          * Set timers to measure performance of each step.
+         *
+         * Run both passes in a fixed-point loop so that components nested inside
+         * other components are fully resolved. This is required because
+         * renderSelfClosingTags() only rewrites the original string once and does
+         * not rescan its own replacements, so a self-closing component whose
+         * output contains another self-closing tag would otherwise leak the inner
+         * tag unrendered. The iteration cap guards against a component that emits
+         * its own tag (which would loop forever).
          */
-        service('timer')->start('self-closing');
-        $output = $this->renderSelfClosingTags($output);
-        service('timer')->stop('self-closing');
+        $iterations = 0;
 
-        service('timer')->start('paired-tags');
-        $output = $this->renderPairedTags($output);
-        service('timer')->stop('paired-tags');
+        do {
+            $previous = $output;
+
+            service('timer')->start('self-closing');
+            $output = $this->renderSelfClosingTags($output);
+            service('timer')->stop('self-closing');
+
+            service('timer')->start('paired-tags');
+            $output = $this->renderPairedTags($output);
+            service('timer')->stop('paired-tags');
+        } while ($output !== $previous && ++$iterations < 10);
 
         return $output;
     }

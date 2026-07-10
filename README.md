@@ -183,7 +183,7 @@ it.
 
 A `famous-quotes` component would have a view called `famous-quotes.php` and a
 controlling class called `FamousQuotesComponent.php`. The class must extend
-`Dgvirtual\Component\Libraries\Component`. The only requirement is that you
+`Dgvirtual\Components\Libraries\Component`. The only requirement is that you
 implement a method called `render()`.
 
 You would call it in one of the ways previously described.

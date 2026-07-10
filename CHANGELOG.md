@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — develop branch
 
+## [0.5.0] — 2026-07-10
+
 ### Added
 - **OPcache-compatible rendering** — component view files are now loaded with
   `include` instead of `eval(file_get_contents(...))`, allowing PHP's OPcache to
@@ -31,6 +33,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - New README section **Component Output Caching** with examples and a table of
   what is/isn't captured automatically.
 - 8 new tests covering the new caching behaviour.
+- New test verifying that self-closing components nested inside another
+  self-closing component's output are fully resolved.
+
+### Fixed
+- **Nested component resolution** — `renderSelfClosingTags()` and
+  `renderPairedTags()` are now called inside a fixed-point loop so that
+  self-closing components whose output contains another self-closing tag are
+  fully resolved instead of leaking the inner tag unrendered. An iteration cap
+  of 10 prevents infinite loops from a component that emits its own tag.
 
 ---
 

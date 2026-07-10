@@ -357,6 +357,50 @@ final class ComponentRendererTest extends TestCase
         $this->assertNull(cache($cacheKey));
     }
 
+    public function testRenderResolvesNestedSelfClosingWithinSelfClosing(): void
+    {
+        // Create a temporary component view that itself contains a
+        // self-closing component tag. This tests the fixed-point loop
+        // in render(): a self-closing component whose output contains
+        // another self-closing tag must be re-scanned in subsequent
+        // iterations instead of leaking the inner tag unrendered.
+        $outerView = __DIR__ . '/nested-selfclose-test.php';
+        file_put_contents(
+            $outerView,
+            '<div class="outer"><x-bootstrap-icon img="star" /><p>inner</p></div>'
+        );
+
+        $config                                = config(Components::class);
+        $originalPaths                         = $config->componentsLookupPaths;
+        $config->componentsLookupPaths = [
+            __DIR__ . '/',                                  // finds nested-selfclose-test.php
+            __DIR__ . '/../src/Components/',                // finds bootstrap-icon.php
+        ];
+
+        // Reset the static view-path cache via reflection so locateView()
+        // picks up the temporary lookup paths.
+        $resetCache = function (): void {
+            $prop = new ReflectionClass(ComponentRenderer::class);
+            $prop = $prop->getProperty('viewPathCache');
+            $prop->setAccessible(true);
+            $prop->setValue([]);
+        };
+        $resetCache();
+
+        try {
+            $html   = '<x-nested-selfclose-test />';
+            $result = $this->renderer->render($html);
+
+            $this->assertStringContainsString('bi-star', $result, 'Inner self-closing component should be resolved');
+            $this->assertStringContainsString('class="outer"', $result, 'Outer component should be rendered');
+            $this->assertStringContainsString('<p>inner</p>', $result, 'Literal HTML in outer view should be preserved');
+        } finally {
+            unlink($outerView);
+            $config->componentsLookupPaths = $originalPaths;
+            $resetCache();
+        }
+    }
+
     protected function invokeMethod(&$object, $methodName, array $parameters = [])
     {
         $reflection = new ReflectionClass($object::class);
