@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
-## [Unreleased] — develop branch
+## [0.5.1] — 2026-07-11
 
 ### Changed
 - **PHP requirement raised to `^8.1`** — aligns with CodeIgniter 4's minimum
