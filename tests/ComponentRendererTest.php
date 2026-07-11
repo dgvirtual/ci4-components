@@ -367,11 +367,11 @@ final class ComponentRendererTest extends TestCase
         $outerView = __DIR__ . '/nested-selfclose-test.php';
         file_put_contents(
             $outerView,
-            '<div class="outer"><x-bootstrap-icon img="star" /><p>inner</p></div>'
+            '<div class="outer"><x-bootstrap-icon img="star" /><p>inner</p></div>',
         );
 
-        $config                                = config(Components::class);
-        $originalPaths                         = $config->componentsLookupPaths;
+        $config                        = config(Components::class);
+        $originalPaths                 = $config->componentsLookupPaths;
         $config->componentsLookupPaths = [
             __DIR__ . '/',                                  // finds nested-selfclose-test.php
             __DIR__ . '/../src/Components/',                // finds bootstrap-icon.php
@@ -379,7 +379,7 @@ final class ComponentRendererTest extends TestCase
 
         // Reset the static view-path cache via reflection so locateView()
         // picks up the temporary lookup paths.
-        $resetCache = function (): void {
+        $resetCache = static function (): void {
             $prop = new ReflectionClass(ComponentRenderer::class);
             $prop = $prop->getProperty('viewPathCache');
             $prop->setAccessible(true);
