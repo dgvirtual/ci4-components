@@ -8,6 +8,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased] — develop branch
 
+### Changed
+- **PHP requirement raised to `^8.1`** — aligns with CodeIgniter 4's minimum
+  PHP version (CI4 v4.3+ requires PHP 8.1). PHP 8.0 is no longer supported.
+- **CI test matrix updated** — added PHP 8.2, 8.4 and 8.5, removed PHP 8.1 (EOL),
+  kept 8.2 and 8.3.
+
+### Fixed
+- **Safe output-buffer cleanup on exceptions** — `renderView()` now tracks
+  `ob_get_level()` before opening its own buffer, so the `catch` and `finally`
+  blocks only close buffers they actually own. This prevents an exception from
+  silently discarding output the caller had already accumulated.
+
 ## [0.5.0] — 2026-07-10
 
 ### Added

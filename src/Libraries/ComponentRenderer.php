@@ -235,6 +235,7 @@ class ComponentRenderer
         // make sure the buffer is closed clean in case of error/exception
         return (static function (string $view, $data) {
             extract($data);
+            $level = ob_get_level();
             ob_start();
 
             try {
@@ -242,11 +243,19 @@ class ComponentRenderer
 
                 return ob_get_clean() ?: '';
             } catch (Throwable $e) {
-                ob_end_clean();
+                if (ob_get_level() > $level) {
+                    ob_end_clean();
+                }
 
                 throw $e;
             } finally {
-                if (ob_get_length()) {
+                // ob_get_clean() in the try block already closed this
+                // function's own buffer. Only clean up here if that
+                // didn't happen (e.g. an exception was thrown before
+                // reaching it) - otherwise ob_get_length()/ob_end_clean()
+                // would operate on the caller's buffer and silently
+                // discard everything it had already accumulated.
+                if (ob_get_level() > $level) {
                     ob_end_clean();
                 }
             }
