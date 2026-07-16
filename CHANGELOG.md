@@ -9,6 +9,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## [unreleased]
 
 - **Remove some Rector rules** that are from an extra package
+- **Make Famous Quotes run async** (for full operability requires to add a route,
+  see Component definition for details)
 
 ## [0.5.1] — 2026-07-11
 

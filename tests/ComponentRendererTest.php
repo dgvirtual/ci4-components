@@ -27,17 +27,12 @@ final class ComponentRendererTest extends TestCase
     protected function setCache($slotValue = null)
     {
         // Set the cache with key 'famous_quote'
-        $quoteData = [
-            'quote' => [
-                'text'   => 'The only way to do great work is to love what you do',
-                'author' => 'Steve Jobs',
-            ],
-            'seconds' => 60,
+        // The new format stores just the quote array (text + author).
+        $quote = [
+            'text'   => 'The only way to do great work is to love what you do',
+            'author' => 'Steve Jobs',
         ];
-        if ($slotValue) {
-            $quoteData['slot'] = $slotValue;
-        }
-        cache()->save('famous_quote', $quoteData, 60);
+        cache()->save('famous_quote', $quote, 60);
     }
 
     protected function emptyCache(): void

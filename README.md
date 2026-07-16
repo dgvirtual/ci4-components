@@ -191,26 +191,45 @@ You would call it in one of the ways previously described.
 See a usable basic example of `famous-quotes` component in the
 `src/Components` folder.
 
-It can be inserted into your project like this (self closing, no atributes):
+#### Async API example: `famous-quotes`
+
+The `famous-quotes` component demonstrates a hybrid server/client pattern:
+
+1. **On render**, the component checks its server-side cache first.
+2. **If a cached quote exists**, it is rendered directly into the HTML — zero
+   client-side work, instant display.
+3. **If no cached quote exists**, a loading placeholder is rendered together
+   with a small inline `<script>` that fetches the quote asynchronously via
+   `fetch()` from a dedicated endpoint. That endpoint calls the external
+   ZenQuotes API, caches the result, and returns JSON. The JavaScript then
+   populates the DOM.
+
+This keeps the external API call off the critical rendering path while still
+caching the result so that subsequent page loads serve the cached version
+directly (step 2).
+
+**Required route:** Add the following line to `app/Config/Routes.php`:
+
+```php
+$routes->get('famous-quotes/fetch', '\Dgvirtual\Components\Controllers\FamousQuotes::fetch');
+```
+
+Insert the component in any of these ways:
 
 ```html
   <x-famous-quotes />
 ```
 
-or self-closing tag with attributes:
-
 ```html
   <x-famous-quotes seconds="30" />
 ```
-
-or a component with opening and closing tags:
 
 ```html
   <x-famous-quotes seconds="30">Famous Quotes</x-famous-quotes>
 ```
 
-As you see, controlled components can  include both the content via `$slot` and 
-html attributes.
+The `seconds` attribute controls how long the fetched quote is cached (default:
+5 seconds).
 
 ## Advanced Configuration
 
